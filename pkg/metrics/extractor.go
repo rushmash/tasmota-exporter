@@ -9,6 +9,10 @@ import (
 var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
 var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 var matchInvalidChar = regexp.MustCompile("[-]")
+var powerStateToMetricValue = map[string]float64{
+	"OFF": 0.0,
+	"ON":  1.0,
+}
 
 func Extract(message []byte) map[string]any {
 	incoming := map[string]any{}
@@ -31,7 +35,11 @@ func normalize(incoming map[string]any) map[string]any {
 		case float64:
 			normalized[toSnakeCase(k)] = x
 		case string:
-			normalized[toSnakeCase(k)] = x
+			if val, ok := powerStateToMetricValue[x]; ok {
+				normalized[toSnakeCase(k)] = val
+			} else {
+				normalized[toSnakeCase(k)] = x
+			}
 		case map[string]any:
 			converted := normalize(x)
 			for k1, v := range converted {
@@ -46,5 +54,5 @@ func toSnakeCase(camelCase string) string {
 	snake := matchFirstCap.ReplaceAllString(camelCase, "${1}_${2}")
 	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
 	snake = matchInvalidChar.ReplaceAllString(snake, "_")
- 	return strings.ToLower(snake)
+	return strings.ToLower(snake)
 }
