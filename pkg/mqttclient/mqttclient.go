@@ -15,7 +15,7 @@ type MqttClient struct {
 func NewMqttClient(host string, port int, user, password string, client_id string) *MqttClient {
 	mqttClient := &MqttClient{}
 	options := mqtt.NewClientOptions()
-	options.AddBroker(fmt.Sprintf("tcp://%s:%d", host, port))
+	options.AddBroker(fmt.Sprintf("%s:%d", host, port))
 	options.SetClientID(client_id)
 	options.SetUsername(user)
 	options.SetPassword(password)

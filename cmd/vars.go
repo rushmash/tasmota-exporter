@@ -16,7 +16,7 @@ type vars struct {
 
 func ReadEnv() (*vars, error) {
 	v := &vars{}
-	v.mqttHost = orDefault(os.Getenv("MQTT_HOSTNAME"), "localhost")
+	v.mqttHost = orDefault(os.Getenv("MQTT_HOSTNAME"), "tcp://localhost")
 	mqttPort, err := strconv.Atoi(orDefault(os.Getenv("MQTT_PORT"), "1883"))
 	if err != nil {
 		return nil, fmt.Errorf("can't parse provided mqtt port: %s", err)

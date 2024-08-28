@@ -3,7 +3,7 @@
 [![Build Status](https://drone.rdome.net/api/badges/dyrkin/tasmota-exporter/status.svg?branch=master)](https://drone.rdome.net/dyrkin/tasmota-exporter)
 [![Docker Hub](https://img.shields.io/badge/image-latest-blue.svg?logo=docker&style=flat)](https://hub.docker.com/r/eugenezadyra/tasmota-exporter/tags/)
 
-A Prometheus exporter for [Tasmota-enabled](https://tasmota.github.io/docs) devices.  
+A Prometheus exporter for [Tasmota-enabled](https://tasmota.github.io/docs) devices.
 It subscribes to the topics `tele/+/+` and `stat/++` to which Tasmota devices send their updates.
 
 ![Grafana dashboard](grafana/dashboard.png)
@@ -28,7 +28,7 @@ chmod +x tasmota-exporter
 
 Before running the application, you have to define the following environment variables:
 ```yaml
-MQTT_HOSTNAME: #optional. default is localhost
+MQTT_HOSTNAME: #optional. default is tcp://localhost
 MQTT_PORT: #optional. default is 1883
 MQTT_USERNAME: #optional. default is empty
 MQTT_PASSWORD: #optional. default is empty
@@ -59,7 +59,7 @@ You can run it using the following example and pass configuration environment va
 
 ```bash
 docker run \
-  -e 'MQTT_HOSTNAME=192.168.1.10' \
+  -e 'MQTT_HOSTNAME=tcp://192.168.1.10' \
   -e 'MQTT_PORT=1883' \
   -e 'MQTT_USERNAME=user' \
   -e 'MQTT_PASSWORD=password' \
@@ -80,7 +80,7 @@ services:
   tasmota-exporter:
     image: eugenezadyra/tasmota-exporter:latest
     environment:
-      MQTT_HOSTNAME: 192.168.1.10
+      MQTT_HOSTNAME: tcp://192.168.1.10
       MQTT_PORT: 1883
       MQTT_USERNAME: user
       MQTT_PASSWORD: password
