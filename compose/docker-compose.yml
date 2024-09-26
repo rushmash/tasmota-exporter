@@ -1,13 +1,61 @@
 version: '3.4'
 services:
-  tasmota-exporter:
-    image: eugenezadyra/tasmota-exporter:latest
+  grafana:
+    image: grafana/grafana-oss:11.1.0
+    container_name: grafana
     environment:
-      MQTT_HOSTNAME: 192.168.1.10
-      MQTT_PORT: 1883
-      MQTT_USERNAME: user
-      MQTT_PASSWORD: password
-      PROMETHEUS_EXPORTER_PORT: 9092
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-storage:/var/lib/grafana:z
+    ports:
+      - '3000:3000'
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus/data
+      - --storage.tsdb.retention.time=365d
+    volumes:
+      - prometheus-storage:/prometheus:z
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:z
+    ports:
+      - '9090:9090'
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0.18
+    container_name: mqtt-broker
+    ports:
+      - '1883:1883' #default mqtt port
+      - '9001:9001' #default mqtt port for websockets
+    volumes:
+      - mqtt-broker-storage:/mosquitto:z
+    restart: unless-stopped
+
+  tasmota-exporter:
+    build: ..
+    container_name: tasmota-exporter
+    environment:
+      - MQTT_HOSTNAME=tcp://mqtt-broker
+      - MQTT_PORT=1883
+      - MQTT_USERNAME=
+      - MQTT_PASSWORD=
+      - PROMETHEUS_EXPORTER_PORT=9092
     ports:
       - '9092:9092'
     restart: unless-stopped
+    depends_on:
+      - prometheus
+      - mqtt-broker
+
+volumes:
+  grafana-storage:
+  prometheus-storage:
+  mqtt-broker-storage:
